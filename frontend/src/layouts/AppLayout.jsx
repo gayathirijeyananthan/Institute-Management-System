@@ -1,18 +1,23 @@
-import { Activity, Bell, Building2, CalendarDays, GraduationCap, LayoutDashboard, LogOut, Menu, Users, UserRoundCog, X } from 'lucide-react';
+import { Activity, Bell, BookOpen, Building2, CalendarDays, FileUp, GraduationCap, LayoutDashboard, LogOut, Menu, ShieldCheck, Sparkles, User, Users, UserRoundCog, X } from 'lucide-react';
 import { useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../features/authSlice.js';
 
 const navItems = [
-  { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { to: '/centers', label: 'Centers', icon: Building2 },
-  { to: '/cohorts', label: 'Cohorts', icon: GraduationCap },
-  { to: '/students', label: 'Students', icon: Users },
-  { to: '/staff', label: 'Staff', icon: UserRoundCog },
-  { to: '/activities', label: 'Activities', icon: Activity },
-  { to: '/attendance', label: 'Attendance', icon: CalendarDays },
-  { to: '/announcements', label: 'Announcements', icon: Bell }
+  { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: ['Platform Admin', 'Institute Admin', 'Center Admin', 'Lecturer', 'Student'] },
+  { to: '/institutes', label: 'Institutes', icon: ShieldCheck, roles: ['Platform Admin'] },
+  { to: '/profile', label: 'Institute Profile', icon: User, roles: ['Institute Admin'] },
+  { to: '/centers', label: 'Centers', icon: Building2, roles: ['Institute Admin', 'Center Admin', 'Lecturer'] },
+  { to: '/cohorts', label: 'Batches', icon: GraduationCap, roles: ['Institute Admin', 'Center Admin', 'Lecturer', 'Student'] },
+  { to: '/students', label: 'Students', icon: Users, roles: ['Institute Admin', 'Center Admin', 'Lecturer'] },
+  { to: '/staff', label: 'Staff', icon: UserRoundCog, roles: ['Institute Admin', 'Center Admin'] },
+  { to: '/modules', label: 'Modules', icon: BookOpen, roles: ['Institute Admin', 'Center Admin', 'Lecturer', 'Student'] },
+  { to: '/activities', label: 'Activities', icon: Activity, roles: ['Institute Admin', 'Center Admin', 'Lecturer', 'Student'] },
+  { to: '/clubs', label: 'Clubs', icon: Sparkles, roles: ['Institute Admin', 'Center Admin', 'Lecturer', 'Student'] },
+  { to: '/submissions', label: 'Submissions', icon: FileUp, roles: ['Lecturer', 'Student'] },
+  { to: '/attendance', label: 'Attendance', icon: CalendarDays, roles: ['Institute Admin', 'Center Admin', 'Student'] },
+  { to: '/announcements', label: 'Announcements', icon: Bell, roles: ['Institute Admin', 'Center Admin', 'Lecturer', 'Student'] }
 ];
 
 export default function AppLayout() {
@@ -38,7 +43,7 @@ export default function AppLayout() {
         </button>
       </div>
       <nav className="flex-1 space-y-1 p-3">
-        {navItems.map(({ to, label, icon: Icon }) => (
+        {navItems.filter((item) => item.roles.includes(user?.role)).map(({ to, label, icon: Icon }) => (
           <NavLink
             className={({ isActive }) =>
               `flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium ${isActive ? 'bg-blue-50 text-brand' : 'text-slate-600 hover:bg-slate-50'}`
@@ -65,8 +70,8 @@ export default function AppLayout() {
             <Menu size={20} />
           </button>
           <div className="min-w-0">
-            <p className="truncate text-sm font-semibold text-ink">{user?.instituteName}</p>
-            <p className="text-xs text-slate-500">{user?.role}</p>
+            <p className="truncate text-sm font-semibold text-ink">{user?.instituteName || user?.name}</p>
+            <p className="text-xs text-slate-500">{user?.role}{user?.centerName ? ` / ${user.centerName}` : ''}</p>
           </div>
           <button className="btn-ghost" onClick={signOut}>
             <LogOut size={18} />

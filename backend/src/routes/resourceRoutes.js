@@ -8,22 +8,27 @@ import {
   announcementController,
   attendanceController,
   centerController,
+  clubController,
   cohortController,
+  moduleController,
   staffController,
-  studentController
+  studentController,
+  submissionController
 } from '../controllers/resourceControllers.js';
 
-const adminRoles = ['Super Admin', 'Institute Admin'];
+const managerRoles = ['Platform Admin', 'Institute Admin', 'Center Admin'];
+const staffRoles = ['Platform Admin', 'Institute Admin', 'Center Admin', 'Lecturer'];
+const allRoles = ['Platform Admin', 'Institute Admin', 'Center Admin', 'Lecturer', 'Student'];
 
-const crudRoutes = (controller, validators = [], uploadField = null) => {
+const crudRoutes = (controller, validators = [], uploadField = null, writeRoles = managerRoles, readRoles = allRoles) => {
   const router = express.Router();
   const uploader = uploadField ? upload.single(uploadField) : (req, res, next) => next();
   router.use(protect);
-  router.get('/', controller.list);
-  router.get('/:id', controller.get);
-  router.post('/', authorize(...adminRoles), uploader, validators, validate, controller.create);
-  router.put('/:id', authorize(...adminRoles), uploader, validators, validate, controller.update);
-  router.delete('/:id', authorize(...adminRoles), controller.remove);
+  router.get('/', authorize(...readRoles), controller.list);
+  router.get('/:id', authorize(...readRoles), controller.get);
+  router.post('/', authorize(...writeRoles), uploader, validators, validate, controller.create);
+  router.put('/:id', authorize(...writeRoles), uploader, validators, validate, controller.update);
+  router.delete('/:id', authorize(...writeRoles), controller.remove);
   return router;
 };
 
@@ -62,7 +67,7 @@ export const staffRoutes = crudRoutes(staffController, [
   body('lastName').notEmpty(),
   body('email').isEmail(),
   body('phone').notEmpty(),
-  body('role').isIn(['Super Admin', 'Institute Admin', 'Teacher', 'Student']),
+  body('role').isIn(['Institute Admin', 'Center Admin', 'Lecturer']),
   body('centerId').isMongoId()
 ]);
 
@@ -77,6 +82,7 @@ export const activityRoutes = crudRoutes(activityController, [
 export const attendanceRoutes = crudRoutes(attendanceController, [
   body('studentId').isMongoId(),
   body('cohortId').isMongoId(),
+  body('centerId').optional({ checkFalsy: true }).isMongoId(),
   body('date').isISO8601(),
   body('status').isIn(['Present', 'Absent', 'Late'])
 ]);
@@ -85,3 +91,36 @@ export const announcementRoutes = crudRoutes(announcementController, [
   body('title').notEmpty(),
   body('message').notEmpty()
 ]);
+
+export const moduleRoutes = crudRoutes(moduleController, [
+  body('moduleName').notEmpty(),
+  body('code').notEmpty(),
+  body('description').optional(),
+  body('cohortId').isMongoId(),
+  body('centerId').isMongoId(),
+  body('lecturerId').optional({ checkFalsy: true }).isMongoId()
+]);
+
+export const clubRoutes = crudRoutes(clubController, [
+  body('clubName').notEmpty(),
+  body('description').notEmpty(),
+  body('centerId').isMongoId(),
+  body('coordinatorId').optional({ checkFalsy: true }).isMongoId()
+]);
+
+export const submissionRoutes = crudRoutes(
+  submissionController,
+  [
+    body('title').notEmpty(),
+    body('notes').optional(),
+    body('moduleId').optional({ checkFalsy: true }).isMongoId(),
+    body('activityId').optional({ checkFalsy: true }).isMongoId(),
+    body('cohortId').isMongoId(),
+    body('centerId').isMongoId(),
+    body('studentId').optional({ checkFalsy: true }).isMongoId(),
+    body('status').optional().isIn(['Submitted', 'Reviewed'])
+  ],
+  'fileUrl',
+  ['Student'],
+  allRoles
+);

@@ -13,7 +13,7 @@ export const fetchDashboard = createAsyncThunk('dashboard/fetch', async (_, { re
 const dashboardSlice = createSlice({
   name: 'dashboard',
   initialState: {
-    totals: { students: 0, cohorts: 0, centers: 0, staff: 0 },
+    totals: { institutes: 0, students: 0, cohorts: 0, centers: 0, staff: 0, modules: 0, submissions: 0 },
     attendanceSummary: [],
     studentGrowth: [],
     loading: false,

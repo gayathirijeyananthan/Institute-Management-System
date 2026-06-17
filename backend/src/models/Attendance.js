@@ -4,6 +4,7 @@ const attendanceSchema = new mongoose.Schema(
   {
     studentId: { type: mongoose.Schema.Types.ObjectId, ref: 'Student', required: true },
     cohortId: { type: mongoose.Schema.Types.ObjectId, ref: 'Cohort', required: true },
+    centerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Center', default: null, index: true },
     date: { type: Date, required: true },
     status: { type: String, enum: ['Present', 'Absent', 'Late'], required: true },
     instituteId: { type: mongoose.Schema.Types.ObjectId, ref: 'Institute', required: true, index: true }
