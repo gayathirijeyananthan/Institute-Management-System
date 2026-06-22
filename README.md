@@ -1,4 +1,4 @@
-# Institute Management System
+cd # Institute Management System
 
 Production-ready MERN foundation for a multi-tenant institute management system.
 
@@ -32,6 +32,13 @@ cd backend
 npm run seed
 ```
 
+Seed login:
+
+```text
+admin@northstar.edu
+Password123
+```
+
 4. Run the backend and frontend in separate terminals:
 
 ```bash
@@ -53,27 +60,6 @@ API: `http://localhost:5000/api`
 - `POST /api/auth/login`
 - `GET /api/auth/me`
 - CRUD: `/api/centers`, `/api/cohorts`, `/api/students`, `/api/staff`, `/api/activities`, `/api/attendance`, `/api/announcements`
-- Learning workflow: `/api/modules`, `/api/clubs`, `/api/submissions`
-- Platform admin: `/api/institutes`
-- Institute profile: `/api/institutes/profile`
 - Dashboard: `GET /api/dashboard`
 
 All protected resource routes scope reads and writes by `instituteId`.
-
-## Roles
-
-- Platform Admin: views all institutes and overall institute management counts.
-- Institute Admin: manages institute profile, centers, batches, students, staff, modules, activities, clubs, attendance, and announcements.
-- Center Admin: manages the assigned center's students, modules, activities, clubs, staff, and attendance.
-- Lecturer: views assigned center learning activity and downloads student submissions.
-- Student: views activities, modules, clubs, attendance, and uploads submissions.
-
-## Seed Logins
-
-All seed accounts use `Password123`.
-
-- Platform Admin: `platform@ims.com`
-- Institute Admin: `admin@northstar.edu`
-- Center Admin: `center@northstar.edu`
-- Lecturer: `maya@northstar.edu`
-- Student: `asha@example.com`

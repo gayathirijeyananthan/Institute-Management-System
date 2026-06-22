@@ -1,8 +1,6 @@
 import { Edit2, Trash2 } from 'lucide-react';
 
-export default function DataTable({ columns, rows, loading, onEdit, onDelete, canWrite = true }) {
-  const colSpan = columns.length + (canWrite ? 1 : 0);
-
+export default function DataTable({ columns, rows, loading, onEdit, onDelete }) {
   return (
     <div className="overflow-hidden rounded-md border border-line bg-white shadow-soft">
       <div className="overflow-x-auto">
@@ -14,19 +12,19 @@ export default function DataTable({ columns, rows, loading, onEdit, onDelete, ca
                   {column.label}
                 </th>
               ))}
-              {canWrite && <th className="table-th w-28 text-right">Actions</th>}
+              <th className="table-th w-28 text-right">Actions</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
               <tr>
-                <td className="table-td text-center" colSpan={colSpan}>
+                <td className="table-td text-center" colSpan={columns.length + 1}>
                   Loading records...
                 </td>
               </tr>
             ) : rows.length === 0 ? (
               <tr>
-                <td className="table-td text-center" colSpan={colSpan}>
+                <td className="table-td text-center" colSpan={columns.length + 1}>
                   No records found.
                 </td>
               </tr>
@@ -38,18 +36,16 @@ export default function DataTable({ columns, rows, loading, onEdit, onDelete, ca
                       {column.render ? column.render(row) : row[column.key]}
                     </td>
                   ))}
-                  {canWrite && (
-                    <td className="table-td">
-                      <div className="flex justify-end gap-2">
-                        <button aria-label="Edit" className="btn-ghost h-9 w-9 px-0" onClick={() => onEdit(row)}>
-                          <Edit2 size={16} />
-                        </button>
-                        <button aria-label="Delete" className="btn-ghost h-9 w-9 px-0 text-red-600" onClick={() => onDelete(row._id)}>
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
-                    </td>
-                  )}
+                  <td className="table-td">
+                    <div className="flex justify-end gap-2">
+                      <button aria-label="Edit" className="btn-ghost h-9 w-9 px-0" onClick={() => onEdit(row)}>
+                        <Edit2 size={16} />
+                      </button>
+                      <button aria-label="Delete" className="btn-ghost h-9 w-9 px-0 text-red-600" onClick={() => onDelete(row._id)}>
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  </td>
                 </tr>
               ))
             )}

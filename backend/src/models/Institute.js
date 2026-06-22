@@ -11,7 +11,7 @@ const instituteSchema = new mongoose.Schema(
     logo: { type: String, default: '' },
     role: {
       type: String,
-      enum: ['Institute Admin'],
+      enum: ['Super Admin', 'Institute Admin', 'Teacher', 'Student'],
       default: 'Institute Admin'
     }
   },

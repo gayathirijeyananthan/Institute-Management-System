@@ -12,15 +12,8 @@ const storage = multer.diskStorage({
 });
 
 const fileFilter = (req, file, cb) => {
-  const allowedTypes = [
-    'application/pdf',
-    'application/msword',
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    'application/zip',
-    'text/plain'
-  ];
-  if (file.mimetype.startsWith('image/') || allowedTypes.includes(file.mimetype)) return cb(null, true);
-  cb(new Error('Unsupported upload type'));
+  if (file.mimetype.startsWith('image/')) return cb(null, true);
+  cb(new Error('Only image uploads are allowed'));
 };
 
-export const upload = multer({ storage, fileFilter, limits: { fileSize: 10 * 1024 * 1024 } });
+export const upload = multer({ storage, fileFilter, limits: { fileSize: 2 * 1024 * 1024 } });

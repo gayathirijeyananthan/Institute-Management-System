@@ -11,42 +11,11 @@ const regexQuery = (fields, term) => {
 
 const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-const scopedFilters = (req, options = {}) => {
-  const filters = {};
-
-  if (!options.platformReadable || req.user.role !== 'Platform Admin') {
-    filters.instituteId = req.instituteId;
-  }
-
-  if (options.centerSelf && ['Center Admin', 'Lecturer', 'Student'].includes(req.user.role)) {
-    delete filters.instituteId;
-    filters._id = req.centerId;
-  }
-
-  if (options.centerScoped && ['Center Admin', 'Lecturer', 'Student'].includes(req.user.role)) {
-    filters.centerId = req.centerId;
-  }
-
-  if (options.studentScoped && req.user.role === 'Student') {
-    filters.studentId = req.studentId;
-  }
-
-  return filters;
-};
-
-const scopedPayload = (req, payload, options = {}) => {
-  const nextPayload = { ...payload };
-  if (req.user.role !== 'Platform Admin') nextPayload.instituteId = req.instituteId;
-  if (options.centerScoped && ['Center Admin', 'Lecturer', 'Student'].includes(req.user.role)) nextPayload.centerId = req.centerId;
-  if (options.studentScoped && req.user.role === 'Student') nextPayload.studentId = req.studentId;
-  return nextPayload;
-};
-
 export const createCrudController = (Model, options = {}) => ({
   async list(req, res, next) {
     try {
       const { page, limit, skip } = getPageOptions(req);
-      const filters = { ...scopedFilters(req, options), ...regexQuery(options.searchFields, req.query.search) };
+      const filters = { instituteId: req.instituteId, ...regexQuery(options.searchFields, req.query.search) };
 
       for (const field of options.filterFields || []) {
         if (req.query[field]) filters[field] = req.query[field];
@@ -69,7 +38,7 @@ export const createCrudController = (Model, options = {}) => ({
 
   async get(req, res, next) {
     try {
-      const item = await Model.findOne({ _id: req.params.id, ...scopedFilters(req, options) }).populate(options.populate || '');
+      const item = await Model.findOne({ _id: req.params.id, instituteId: req.instituteId }).populate(options.populate || '');
       if (!item) {
         res.status(404);
         throw new Error('Resource not found');
@@ -82,10 +51,9 @@ export const createCrudController = (Model, options = {}) => ({
 
   async create(req, res, next) {
     try {
-      const payload = scopedPayload(req, req.body, options);
+      const payload = { ...req.body, instituteId: req.instituteId };
       if (req.file) payload[options.fileField || 'profileImage'] = `/uploads/${req.file.filename}`;
       const item = await Model.create(payload);
-      if (options.afterCreate) await options.afterCreate(item, req);
       res.status(201).json(item);
     } catch (error) {
       next(error);
@@ -99,7 +67,7 @@ export const createCrudController = (Model, options = {}) => ({
       if (req.file) payload[options.fileField || 'profileImage'] = `/uploads/${req.file.filename}`;
 
       const item = await Model.findOneAndUpdate(
-        { _id: req.params.id, ...scopedFilters(req, options) },
+        { _id: req.params.id, instituteId: req.instituteId },
         payload,
         { new: true, runValidators: true }
       );
@@ -115,7 +83,7 @@ export const createCrudController = (Model, options = {}) => ({
 
   async remove(req, res, next) {
     try {
-      const item = await Model.findOneAndDelete({ _id: req.params.id, ...scopedFilters(req, options) });
+      const item = await Model.findOneAndDelete({ _id: req.params.id, instituteId: req.instituteId });
       if (!item) {
         res.status(404);
         throw new Error('Resource not found');
