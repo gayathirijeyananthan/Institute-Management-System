@@ -1,4 +1,4 @@
-import { Building2, GraduationCap, Users, UserRoundCog } from 'lucide-react';
+import { BookOpen, Building2, FileUp, GraduationCap, Landmark, Users, UserRoundCog } from 'lucide-react';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
@@ -8,6 +8,7 @@ import { fetchDashboard } from '../features/dashboardSlice.js';
 export default function DashboardPage() {
   const dispatch = useDispatch();
   const { totals, studentGrowth, attendanceSummary, loading } = useSelector((state) => state.dashboard);
+  const { user } = useSelector((state) => state.auth);
 
   useEffect(() => {
     dispatch(fetchDashboard());
@@ -17,13 +18,18 @@ export default function DashboardPage() {
     <div>
       <div className="mb-5">
         <h1 className="text-2xl font-bold text-ink">Dashboard</h1>
-        <p className="mt-1 text-sm text-slate-500">Operational snapshot for your institute.</p>
+        <p className="mt-1 text-sm text-slate-500">Operational snapshot for {user?.role === 'Platform Admin' ? 'all institutes' : 'your workspace'}.</p>
       </div>
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {user?.role === 'Platform Admin' && <StatCard icon={Landmark} label="Total Institutes" value={loading ? '...' : totals.institutes} tone="bg-violet-50 text-violet-700" />}
         <StatCard icon={Users} label="Total Students" value={loading ? '...' : totals.students} />
         <StatCard icon={GraduationCap} label="Total Cohorts" value={loading ? '...' : totals.cohorts} tone="bg-emerald-50 text-emerald-700" />
         <StatCard icon={Building2} label="Total Centers" value={loading ? '...' : totals.centers} tone="bg-amber-50 text-amber-700" />
         <StatCard icon={UserRoundCog} label="Total Staff" value={loading ? '...' : totals.staff} tone="bg-rose-50 text-rose-700" />
+        {user?.role !== 'Platform Admin' && <StatCard icon={BookOpen} label="Total Modules" value={loading ? '...' : totals.modules} tone="bg-cyan-50 text-cyan-700" />}
+        {['Lecturer', 'Student', 'Center Admin', 'Institute Admin'].includes(user?.role) && (
+          <StatCard icon={FileUp} label="Submissions" value={loading ? '...' : totals.submissions} tone="bg-fuchsia-50 text-fuchsia-700" />
+        )}
       </div>
       <div className="mt-6 grid gap-6 xl:grid-cols-2">
         <section className="rounded-md border border-line bg-white p-5 shadow-soft">

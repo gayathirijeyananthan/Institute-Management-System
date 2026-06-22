@@ -6,7 +6,7 @@ const staffSchema = new mongoose.Schema(
     lastName: { type: String, required: true, trim: true },
     email: { type: String, required: true, lowercase: true, trim: true },
     phone: { type: String, required: true, trim: true },
-    role: { type: String, enum: ['Super Admin', 'Institute Admin', 'Teacher', 'Student'], default: 'Teacher' },
+    role: { type: String, enum: ['Institute Admin', 'Center Admin', 'Lecturer'], default: 'Lecturer' },
     centerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Center', required: true },
     instituteId: { type: mongoose.Schema.Types.ObjectId, ref: 'Institute', required: true, index: true }
   },

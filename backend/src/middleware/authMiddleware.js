@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import Institute from '../models/Institute.js';
+import User from '../models/User.js';
 
 export const protect = async (req, res, next) => {
   try {
@@ -14,15 +14,18 @@ export const protect = async (req, res, next) => {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const institute = await Institute.findById(decoded.id).select('-password');
+    const user = await User.findById(decoded.id).select('-password').populate('instituteId centerId studentId staffId');
 
-    if (!institute) {
+    if (!user || !user.isActive) {
       res.status(401);
       throw new Error('Not authorized, account missing');
     }
 
-    req.user = institute;
-    req.instituteId = institute._id;
+    req.user = user;
+    req.instituteId = user.instituteId?._id || null;
+    req.centerId = user.centerId?._id || null;
+    req.studentId = user.studentId?._id || null;
+    req.staffId = user.staffId?._id || null;
     next();
   } catch (error) {
     res.status(401);
@@ -34,6 +37,14 @@ export const authorize = (...roles) => (req, res, next) => {
   if (!roles.includes(req.user.role)) {
     res.status(403);
     return next(new Error('Forbidden: insufficient role'));
+  }
+  next();
+};
+
+export const requireInstituteScope = (req, res, next) => {
+  if (req.user.role !== 'Platform Admin' && !req.instituteId) {
+    res.status(403);
+    return next(new Error('Institute scope is required'));
   }
   next();
 };
